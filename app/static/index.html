@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>FRAUDGUARD // AI &mdash; Transaction Intelligence</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <link rel="stylesheet" href="/static/styles.css" />
+
+  <style>
+
+    /* â”€â”€ Landing Page â”€â”€ */
+
+    #landing {
+
+      position: fixed; inset: 0; z-index: 999;
+
+      background: #020204;
+
+      display: flex; flex-direction: column;
+
+      align-items: center; justify-content: center;
+
+      transition: opacity 400ms ease;
+
+    }
+
+    #landing.fade-out { opacity: 0; pointer-events: none; }
+
+
+
+    .lp-wordmark {
+
+      display: flex; align-items: center; gap: 14px;
+
+      font-family: 'Inter', sans-serif; font-size: 32px; font-weight: 700;
+
+      color: #fff; letter-spacing: 0.3em; white-space: nowrap;
+
+    }
+
+    .lp-bar {
+
+      width: 4px; height: 28px; background: #6366f1; flex-shrink: 0; border-radius: 2px;
+
+    }
+
+    .lp-slash { color: #6366f1; }
+
+
+
+    .lp-tagline {
+
+      margin-top: 20px;
+
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 300;
+
+      color: rgba(255,255,255,0.35); letter-spacing: 0.04em;
+
+    }
+
+
+
+    .lp-stats {
+
+      display: flex; gap: 32px; margin-top: 40px;
+
+    }
+
+    .lp-pill {
+
+      background: rgba(255,255,255,0.04);
+
+      border: 1px solid rgba(255,255,255,0.06);
+
+      border-radius: 4px; padding: 10px 24px;
+
+      text-align: center;
+
+    }
+
+    .lp-pill-val {
+
+      font-family: 'JetBrains Mono', monospace;
+
+      font-size: 20px; color: #fff; display: block;
+
+    }
+
+    .lp-pill-label {
+
+      font-family: 'Inter', sans-serif; font-size: 9px;
+
+      color: rgba(255,255,255,0.3); letter-spacing: 0.2em;
+
+      text-transform: uppercase; display: block; margin-top: 4px;
+
+    }
+
+
+
+    .lp-cta {
+
+      margin-top: 48px;
+
+      width: 200px; height: 48px;
+
+      background: #6366f1; color: #fff; border: none; border-radius: 4px;
+
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+
+      letter-spacing: 0.25em; cursor: pointer; text-transform: uppercase;
+
+      transition: box-shadow 200ms ease;
+
+    }
+
+    .lp-cta:hover { box-shadow: 0 0 24px rgba(99,102,241,0.4); }
+
+
+
+    .lp-footer {
+
+      position: fixed; bottom: 20px;
+
+      font-family: 'Inter', sans-serif; font-size: 9px;
+
+      color: rgba(255,255,255,0.2); letter-spacing: 0.1em;
+
+    }
+
+
+
+    /* â”€â”€ App wrapper (hidden until landing dismissed) â”€â”€ */
+
+    #app {
+
+      display: flex; flex-direction: column; height: 100vh;
+
+      opacity: 0; transition: opacity 300ms ease; pointer-events: none;
+
+    }
+
+    #app.visible { opacity: 1; pointer-events: all; }
+
+
+
+    /* â”€â”€ Left panel tabs (TRANSACTION SCAN / STATEMENT ANALYSIS) â”€â”€ */
+
+    .panel-tabs {
+
+      display: flex; border-bottom: 1px solid rgba(255,255,255,0.05);
+
+      flex-shrink: 0;
+
+    }
+
+    .panel-tab {
+
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+
+      letter-spacing: 0.15em; color: rgba(255,255,255,0.25);
+
+      padding: 0 20px; height: 38px; display: flex; align-items: center;
+
+      cursor: pointer; border-bottom: 2px solid transparent;
+
+      transition: color 150ms, border-color 150ms;
+
+    }
+
+    .panel-tab:hover { color: rgba(255,255,255,0.55); }
+
+    .panel-tab.active { color: #fff; border-bottom-color: #6366f1; }
+
+
+
+    /* â”€â”€ Statement upload zone â”€â”€ */
+
+    .stmt-panel { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+    .drop-zone {
+
+      border: 1px dashed rgba(99,102,241,0.3);
+
+      border-radius: 4px;
+
+      background: rgba(99,102,241,0.03);
+
+      height: 280px;
+
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+
+      gap: 10px; cursor: pointer;
+
+      transition: border-color 150ms, background 150ms;
+
+    }
+
+    .drop-zone.drag-over {
+
+      border-color: rgba(99,102,241,0.7);
+
+      background: rgba(99,102,241,0.07);
+
+    }
+
+    .drop-zone-icon { color: #6366f1; }
+
+    .drop-zone-title {
+
+      font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: #fff;
+
+    }
+
+    .drop-zone-sub {
+
+      font-family: 'Inter', sans-serif; font-size: 9px;
+
+      color: rgba(255,255,255,0.3); letter-spacing: 0.05em;
+
+    }
+
+    #stmtFile { display: none; }
+
+
+
+    .stmt-btn {
+
+      height: 36px; background: rgba(99,102,241,0.06);
+
+      border: 1px solid rgba(99,102,241,0.4); border-radius: 4px;
+
+      color: #6366f1; font-family: 'Inter', sans-serif; font-size: 10px;
+
+      font-weight: 600; letter-spacing: 0.2em; cursor: pointer;
+
+      transition: border-color 150ms, background 150ms;
+
+    }
+
+    .stmt-btn:hover:not(:disabled) {
+
+      border-color: rgba(99,102,241,0.8);
+
+      background: rgba(99,102,241,0.12);
+
+    }
+
+    .stmt-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+
+
+    /* â”€â”€ Statement results â”€â”€ */
+
+    .stmt-results { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+
+    .stmt-meta-row {
+
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+
+    }
+
+    .stmt-tag {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700;
+
+      letter-spacing: 0.1em; padding: 3px 8px; border-radius: 3px;
+
+      background: rgba(99,102,241,0.12); color: #6366f1;
+
+      border: 1px solid rgba(99,102,241,0.3);
+
+    }
+
+    .stmt-count {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+
+      color: rgba(255,255,255,0.5);
+
+    }
+
+    .stmt-export-btn {
+
+      margin-left: auto; height: 28px; padding: 0 12px;
+
+      background: rgba(99,102,241,0.06); border: 1px solid rgba(99,102,241,0.4);
+
+      border-radius: 4px; color: #6366f1; font-family: 'Inter', sans-serif;
+
+      font-size: 9px; font-weight: 600; letter-spacing: 0.15em; cursor: pointer;
+
+      transition: 150ms;
+
+    }
+
+    .stmt-export-btn:hover { background: rgba(99,102,241,0.12); border-color: rgba(99,102,241,0.8); }
+
+
+
+    .stmt-inset {
+
+      background: #050509; border-radius: 4px; padding: 14px 16px;
+
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 300;
+
+      color: rgba(255,255,255,0.75); line-height: 1.8;
+
+      white-space: pre-wrap; word-break: break-word;
+
+      max-height: 320px; overflow-y: auto;
+
+    }
+
+    .stmt-risk-label {
+
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+
+      letter-spacing: 0.2em; color: #6366f1; text-transform: uppercase;
+
+      margin-bottom: 6px;
+
+    }
+
+    .stmt-risk-block {
+
+      background: #050509; border-radius: 4px; padding: 12px 16px;
+
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 300;
+
+      color: rgba(255,255,255,0.75); line-height: 1.8; white-space: pre-wrap;
+
+    }
+
+
+
+    /* â”€â”€ Type tab bar (fixed inside side panel) â”€â”€ */
+
+    .type-tab-bar {
+
+      display: flex; height: 40px;
+
+      background: #08080f;
+
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+
+      flex-shrink: 0;
+
+    }
+
+    .type-tab {
+
+      flex: 1; display: flex; align-items: center; justify-content: center;
+
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+
+      letter-spacing: 0.15em; color: rgba(255,255,255,0.25); cursor: pointer;
+
+      border-bottom: 2px solid transparent;
+
+      transition: color 150ms, border-color 150ms;
+
+    }
+
+    .type-tab:hover { color: rgba(255,255,255,0.55); }
+
+    .type-tab.active { color: #fff; border-bottom-color: #6366f1; }
+
+
+
+    /* â”€â”€ Statement dashboard â”€â”€ */
+
+    .stmt-dashboard { padding: 0 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+    .stmt-card {
+
+      background: #08080f; border: 1px solid rgba(255,255,255,0.05);
+
+      border-radius: 4px; padding: 14px 16px;
+
+      opacity: 0; transform: translateY(6px);
+
+      transition: opacity 300ms ease, transform 300ms ease;
+
+    }
+
+    .stmt-card.visible { opacity: 1; transform: translateY(0); }
+
+    .stmt-card-full { grid-column: 1 / -1; }
+
+    .stmt-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .stmt-card-label {
+
+      font-family: 'Inter', sans-serif; font-size: 8px; font-weight: 600;
+
+      letter-spacing: 0.18em; color: #6366f1; text-transform: uppercase; margin-bottom: 8px;
+
+    }
+
+    .stmt-verdict-strip {
+
+      display: flex; align-items: center; justify-content: space-between;
+
+      height: 54px; border-radius: 4px; padding: 0 16px;
+
+      border-left: 3px solid;
+
+    }
+
+    .stmt-verdict-text {
+
+      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 700; letter-spacing: 0.08em;
+
+    }
+
+    .stmt-verdict-count {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 30px; color: #6366f1;
+
+    }
+
+    .dna-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+
+    .dna-label {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+
+      color: rgba(255,255,255,0.4); width: 120px; flex-shrink: 0;
+
+    }
+
+    .dna-track {
+
+      flex: 1; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden;
+
+    }
+
+    .dna-fill { height: 100%; border-radius: 2px; width: 0; transition: width 600ms ease; }
+
+    .dna-val {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 8px;
+
+      color: rgba(255,255,255,0.5); width: 28px; text-align: right;
+
+    }
+
+    .stmt-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+
+    .stmt-table th {
+
+      background: rgba(99,102,241,0.15); color: #6366f1;
+
+      font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 600;
+
+      letter-spacing: 0.1em; padding: 6px 8px; text-align: left;
+
+    }
+
+    .stmt-table td { padding: 5px 8px; color: rgba(255,255,255,0.75); }
+
+    .stmt-table tr:nth-child(even) td { background: rgba(13,13,20,0.8); }
+
+    .stmt-table tr:nth-child(odd)  td { background: rgba(17,17,24,0.8); }
+
+    .stmt-table .amt-neg { color: #f43f5e; }
+
+    .stmt-table .amt-pos { color: #10b981; }
+
+    .stmt-tbl-wrap { max-height: 220px; overflow-y: auto; }
+
+    .stmt-ai-header {
+
+      font-family: 'Inter', sans-serif; font-size: 8px; font-weight: 600;
+
+      letter-spacing: 0.18em; color: #6366f1; margin-bottom: 8px;
+
+    }
+
+    .stmt-ai-body {
+
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 300;
+
+      color: rgba(255,255,255,0.72); line-height: 1.8; white-space: pre-wrap;
+
+      max-height: 180px; overflow-y: auto;
+
+    }
+
+    .stmt-no-data {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+
+      color: rgba(255,255,255,0.25); text-align: center; padding: 24px 0;
+
+    }
+
+    .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+
+    .gauge-svg { width: 130px; height: 75px; }
+
+    .gauge-score {
+
+      font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #fff;
+
+      text-align: center; margin-top: -8px;
+
+    }
+
+    .gauge-sub {
+
+      font-family: 'Inter', sans-serif; font-size: 8px; color: rgba(255,255,255,0.3);
+
+      letter-spacing: 0.15em; text-align: center;
+
+    }
+
+  
+    .risk-summary-fallback {
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 13px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        background: none !important;
+        border: none !important;
+        outline: none !important;
+        padding: 0;
+    }
+</style>
+
+</head>
+
+<body>
+
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+     LANDING PAGE
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+<div id="landing">
+
+  <div class="lp-wordmark">
+
+    <div class="lp-bar"></div>
+
+    FRAUDGUARD <span class="lp-slash">&thinsp;//&thinsp;</span> AI
+
+  </div>
+
+  <div class="lp-tagline">Real-time transaction intelligence. Powered by XGBoost + Groq.</div>
+
+
+
+  <div class="lp-stats">
+
+    <div class="lp-pill">
+
+      <span class="lp-pill-val">99.98%</span>
+
+      <span class="lp-pill-label">AUC-ROC</span>
+
+    </div>
+
+    <div class="lp-pill">
+
+      <span class="lp-pill-val">80ms</span>
+
+      <span class="lp-pill-label">AVG LATENCY</span>
+
+    </div>
+
+    <div class="lp-pill">
+
+      <span class="lp-pill-val">6.3M</span>
+
+      <span class="lp-pill-label">TRANSACTIONS TRAINED</span>
+
+    </div>
+
+  </div>
+
+
+
+  <button class="lp-cta" id="enterBtn">ENTER TERMINAL</button>
+
+  <div class="lp-footer">FRAUDGUARD AI &nbsp;Â·&nbsp; v1.0 &nbsp;Â·&nbsp; Powered by Anthropic Groq</div>
+
+</div>
+
+
+
+
+
+<!-- â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+     MAIN APP
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• -->
+
+<div id="app">
+
+
+
+<header class="header">
+
+  <span class="logo-text"><b>FRAUDGUARD</b> // AI</span>
+
+  <div class="header-right">
+
+    <span id="clock">22:45:03 UTC</span>
+
+    <span class="status-live">SECURE</span>
+
+  </div>
+
+</header>
+
+
+
+<div class="layout">
+
+
+
+  <!-- â”€â”€ Left: results panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <div class="main-panel" style="padding:0;display:flex;flex-direction:column;overflow:hidden;">
+
+
+
+    <!-- Left panel tab switcher -->
+
+    <div class="panel-tabs">
+
+      <div class="panel-tab active" id="ptabScan" onclick="switchPanelTab('scan')">TRANSACTION SCAN</div>
+
+      <div class="panel-tab" id="ptabStmt" onclick="switchPanelTab('stmt')">STATEMENT ANALYSIS</div>
+
+    </div>
+
+
+
+    <!-- TRANSACTION SCAN view -->
+
+    <div id="scanView" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;">
+
+      <div class="empty-state" id="emptyState">
+
+        <div class="empty-icon">
+
+          <svg viewBox="0 0 24 24" stroke-width="1.3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955 11.955 0 003 10c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.249-8.25-3.286z"/></svg>
+
+        </div>
+
+        <p class="empty-p">Configure transaction parameters and initiate scan.</p>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- STATEMENT ANALYSIS view -->
+
+    <div id="stmtView" style="flex:1;overflow-y:auto;display:none;">
+
+      <div class="stmt-panel">
+
+        <!-- Drop zone -->
+
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('stmtFile').click()">
+
+          <div class="drop-zone-icon">
+
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+
+              <polyline points="17 8 12 3 7 8"/>
+
+              <line x1="12" y1="3" x2="12" y2="15"/>
+
+            </svg>
+
+          </div>
+
+          <div class="drop-zone-title">DROP BANK STATEMENT HERE</div>
+
+          <div class="drop-zone-sub">PDF or image &nbsp;Â·&nbsp; PNG &nbsp;Â·&nbsp; JPG</div>
+
+        </div>
+
+        <input type="file" id="stmtFile" accept=".pdf,.png,.jpg,.jpeg" onchange="onFileSelected(this)" />
+
+
+
+        <!-- Analyse button -->
+
+        <button class="stmt-btn" id="analyseBtn" disabled onclick="runStatementAnalysis()">
+
+          ANALYSE STATEMENT
+
+        </button>
+
+
+
+        <!-- Results area -->
+
+        <div id="stmtResults" style="display:none;">
+
+          <div class="stmt-results">
+
+            <div class="stmt-meta-row">
+
+              <span class="stmt-tag" id="stmtFileType">PDF</span>
+
+              <span class="stmt-count" id="stmtTxnCount"></span>
+
+              <button class="stmt-export-btn" id="exportStmtBtn" onclick="exportStmtPdf()">EXPORT ANALYSIS</button>
+
+            </div>
+
+            <div class="stmt-inset" id="stmtRawBlock"></div>
+
+            <div id="stmtRiskWrap" style="display:none;">
+
+              <div class="stmt-risk-label">RISK ASSESSMENT</div>
+
+              <div class="stmt-risk-block" id="stmtRiskBlock"></div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Statement visual dashboard -->
+
+        <div id="stmtDashboard" class="stmt-dashboard"></div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- â”€â”€ Right: input side panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+
+  <div class="side-panel" style="display:flex;flex-direction:column;overflow:hidden;">
+
+
+
+    <!-- Type tab bar (fixed at top of side panel) -->
+
+    <div class="type-tab-bar" id="typeTabs">
+
+      <div class="type-tab" data-type="CASH_IN">CASH_IN</div>
+
+      <div class="type-tab" data-type="CASH_OUT">CASH_OUT</div>
+
+      <div class="type-tab" data-type="DEBIT">DEBIT</div>
+
+      <div class="type-tab" data-type="PAYMENT">PAYMENT</div>
+
+      <div class="type-tab" data-type="TRANSFER">TRANSFER</div>
+
+    </div>
+
+
+
+    <!-- Scrollable form body -->
+
+    <div class="sp-body" style="overflow-y:auto;padding-top:14px;">
+
+      <div class="sp-field">
+
+        <label>USER ID</label>
+
+        <input type="text" id="userId" placeholder="U-000000" />
+
+      </div>
+
+      <div class="sp-field">
+
+        <label>TRANSACTION ID</label>
+
+        <input type="text" id="txnId" placeholder="T-00000000" />
+
+      </div>
+
+      <div class="sp-field">
+
+        <label id="amountLabel">AMOUNT ($)</label>
+
+        <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" />
+
+      </div>
+
+      <div class="sp-row2">
+
+        <div class="sp-field">
+
+          <label>CURRENCY</label>
+
+          <div class="currency-wrap">
+
+            <select id="currency" onchange="onCurrencyChange(this)">
+
+              <option value="USD">USD &mdash; US Dollar</option>
+
+              <option value="EUR">EUR &mdash; Euro</option>
+
+              <option value="GBP">GBP &mdash; British Pound</option>
+
+              <option value="INR">INR &mdash; Indian Rupee</option>
+
+              <option value="JPY">JPY &mdash; Japanese Yen</option>
+
+              <option value="AUD">AUD &mdash; Australian Dollar</option>
+
+              <option value="CAD">CAD &mdash; Canadian Dollar</option>
+
+              <option value="CHF">CHF &mdash; Swiss Franc</option>
+
+              <option value="SGD">SGD &mdash; Singapore Dollar</option>
+
+              <option value="AED">AED &mdash; UAE Dirham</option>
+
+              <option value="CNY">CNY &mdash; Chinese Yuan</option>
+
+              <option value="MXN">MXN &mdash; Mexican Peso</option>
+
+              <option value="BRL">BRL &mdash; Brazilian Real</option>
+
+              <option value="ZAR">ZAR &mdash; South African Rand</option>
+
+              <option value="HKD">HKD &mdash; Hong Kong Dollar</option>
+
+            </select>
+
+            <span class="select-arrow">
+
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+
+                <path d="M1 1l5 5 5-5" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+              </svg>
+
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="sp-field">
+
+          <label>HOUR OF DAY</label>
+
+          <input type="number" id="hours_day" placeholder="14" min="0" max="23" />
+
+        </div>
+
+      </div>
+
+      <div class="sp-field">
+
+        <label>DESTINATION ACCT</label>
+
+        <input type="text" id="destAcct" placeholder="4455-6677-8899-0011" />
+
+      </div>
+
+      <div class="sp-row2">
+
+        <div class="sp-field">
+
+          <label>SENDER BAL BEFORE</label>
+
+          <input type="number" id="oldbalanceOrg" placeholder="0.00" min="0" step="0.01" />
+
+        </div>
+
+        <div class="sp-field">
+
+          <label>SENDER BAL AFTER</label>
+
+          <input type="number" id="newbalanceOrig" placeholder="0.00" min="0" step="0.01" />
+
+        </div>
+
+      </div>
+
+      <div class="sp-row2">
+
+        <div class="sp-field">
+
+          <label>RECIP BAL BEFORE</label>
+
+          <input type="number" id="oldbalanceDest" placeholder="0.00" min="0" step="0.01" />
+
+        </div>
+
+        <div class="sp-field">
+
+          <label>RECIP BAL AFTER</label>
+
+          <input type="number" id="newbalanceDest" placeholder="0.00" min="0" step="0.01" />
+
+        </div>
+
+      </div>
+
+      <div class="sp-row2">
+
+        <div class="sp-field">
+
+          <label>HOURS SINCE LAST</label>
+
+          <input type="number" id="recency_hours" placeholder="0.0" min="0" step="0.1" />
+
+        </div>
+
+        <div class="sp-field">
+
+          <label>TXNS IN 24H</label>
+
+          <input type="number" id="txn_count_24h" placeholder="0" min="0" />
+
+        </div>
+
+      </div>
+
+      <div class="sp-field">
+
+        <label>NEW DESTINATION?</label>
+
+        <select id="is_dest_new">
+
+          <option value="0">No &mdash; known</option>
+
+          <option value="1">Yes &mdash; first-time</option>
+
+        </select>
+
+      </div>
+
+      <div class="sp-field">
+
+        <label>NOTES</label>
+
+        <div class="sp-notes" id="notesField">'Urgent verification requested.'</div>
+
+      </div>
+
+      <button class="scan-btn" id="scanBtn" onclick="runAnalysis()">
+
+        <span class="btn-text">INITIATE SCAN</span>
+
+        <span class="btn-loading"><span class="spinner"></span>SCANNING...</span>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- Forensic Modal -->
+
+<div class="modal-overlay" id="forensicModal">
+
+  <div class="modal">
+
+    <div class="modal-header">
+
+      <h3>FORENSIC ANALYSIS // <span id="modalTxnId">TXN_ID: ---</span></h3>
+
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+
+    </div>
+
+    <div class="modal-body" id="modalBody"></div>
+
+  </div>
+
+</div>
+
+
+
+</div><!-- /#app -->
+
+
+
+<script src="/static/app.js"></script>
+
+<script>
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// LANDING PAGE
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+document.getElementById('enterBtn').addEventListener('click', function () {
+
+  const landing = document.getElementById('landing');
+
+  const app = document.getElementById('app');
+
+  landing.classList.add('fade-out');
+
+  setTimeout(() => { landing.style.display = 'none'; app.classList.add('visible'); }, 420);
+
+});
+
+
+
+// ── Currency symbol map ──────────────────────────────────────────────────────
+
+const _currencySymbols = {
+
+  USD:'$', EUR:'\u20AC', GBP:'\u00A3', INR:'\u20B9', JPY:'\u00A5',
+
+  AUD:'A$', CAD:'C$', CHF:'Fr', SGD:'S$', AED:'\u062F.\u0625',
+
+  CNY:'\u00A5', MXN:'$', BRL:'R$', ZAR:'R', HKD:'HK$'
+
+};
+
+function onCurrencyChange(sel) {
+
+  const sym = _currencySymbols[sel.value] || sel.value;
+
+  const lbl = document.getElementById('amountLabel');
+
+  if (lbl) lbl.textContent = 'AMOUNT (' + sym + ')';
+
+}
+
+
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// PANEL TAB SWITCHER
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function switchPanelTab(tab) {
+
+  const scanView = document.getElementById('scanView');
+
+  const stmtView = document.getElementById('stmtView');
+
+  const ptabScan = document.getElementById('ptabScan');
+
+  const ptabStmt = document.getElementById('ptabStmt');
+
+  if (tab === 'scan') {
+
+    scanView.style.display = 'flex'; stmtView.style.display = 'none';
+
+    ptabScan.classList.add('active'); ptabStmt.classList.remove('active');
+
+  } else {
+
+    scanView.style.display = 'none'; stmtView.style.display = 'block';
+
+    ptabScan.classList.remove('active'); ptabStmt.classList.add('active');
+
+  }
+
+}
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// TYPE TAB BAR (side panel)
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+document.querySelectorAll('.type-tab').forEach(tab => {
+
+  tab.addEventListener('click', () => {
+
+    document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+
+    tab.classList.add('active');
+
+    window._selectedType = tab.dataset.type;
+
+  });
+
+});
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// DROP ZONE
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+
+dropZone.addEventListener('drop', e => {
+
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+
+  const files = e.dataTransfer.files;
+
+  if (files.length > 0) { document.getElementById('stmtFile').files = files; onFileSelected({ files }); }
+
+});
+
+
+
+let stmtFile = null;
+
+let stmtData = null;   // full API response, used for export
+
+let _stmtCharts = [];  // Chart.js instances to destroy on re-analyse
+
+
+
+function onFileSelected(input) {
+
+  const f = input.files[0]; if (!f) return;
+
+  stmtFile = f;
+
+  document.getElementById('analyseBtn').disabled = false;
+
+  dropZone.querySelector('.drop-zone-title').textContent = f.name;
+
+  dropZone.querySelector('.drop-zone-sub').textContent =
+
+    (f.size / 1024).toFixed(1) + ' KB  \u00B7  ' + (f.type.split('/')[1] || 'file').toUpperCase();
+
+}
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// STATEMENT ANALYSIS &mdash; FETCH
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+async function runStatementAnalysis() {
+
+  if (!stmtFile) return;
+
+  const btn = document.getElementById('analyseBtn');
+
+  btn.disabled = true; btn.textContent = 'EXTRACTING...';
+
+  setTimeout(() => { btn.textContent = 'ANALYSING...'; }, 800);
+
+
+
+  // Destroy old charts
+
+  _stmtCharts.forEach(c => { try { c.destroy(); } catch(e){} });
+
+  _stmtCharts = [];
+
+  document.getElementById('stmtDashboard').innerHTML = '';
+
+  document.getElementById('stmtResults').style.display = 'none';
+
+
+
+  const fd = new FormData(); fd.append('file', stmtFile);
+
+  try {
+
+    const res = await fetch('/analyse-statement', { method: 'POST', body: fd });
+
+    if (!res.ok) { const e = await res.json(); throw new Error(e.detail || res.status); }
+
+    stmtData = await res.json();
+
+    stmtData._fileName = stmtFile.name;
+
+    stmtData._timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+
+    renderStmtResults(stmtData);
+
+    renderStmtDashboard(stmtData);
+
+  } catch (e) {
+
+    document.getElementById('stmtResults').style.display = 'block';
+
+    document.getElementById('stmtRawBlock').textContent = 'Error: ' + e.message;
+
+    document.getElementById('stmtRiskWrap').style.display = 'none';
+
+  } finally {
+
+    btn.textContent = 'ANALYSE STATEMENT'; btn.disabled = false;
+
+  }
+
+}
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// RENDER &mdash; text results (existing raw block)
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function renderStmtResults(data) {
+
+  document.getElementById('stmtFileType').textContent = (data.file_type || 'FILE').toUpperCase();
+
+  const countEl = document.getElementById('stmtTxnCount');
+
+  countEl.textContent = data.transaction_count != null ? data.transaction_count + ' TRANSACTIONS DETECTED' : '';
+
+  const rawBlock = document.getElementById('stmtRawBlock');
+
+  rawBlock.textContent = '';
+
+  document.getElementById('stmtResults').style.display = 'block';
+
+  let i = 0; const txt = data.raw_analysis || '';
+
+  function type() { if (i < txt.length) { rawBlock.textContent += txt.charAt(i++); setTimeout(type, 6); } }
+
+  type();
+
+  if (data.risk_summary) {
+
+    document.getElementById('stmtRiskBlock').textContent = data.risk_summary;
+
+    document.getElementById('stmtRiskWrap').style.display = 'block';
+
+  } else {
+
+    document.getElementById('stmtRiskWrap').style.display = 'none';
+
+  }
+
+}
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// PARSING HELPERS
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function parseTxnLines(raw) {
+
+  // Match: DATE | DESCRIPTION | AMOUNT | BALANCE
+
+  return (raw || '').split('\n')
+
+    .map(l => { const p = l.split('|'); return p.length >= 4 ? p.map(s => s.trim()) : null; })
+
+    .filter(Boolean);
+
+}
+
+
+
+function parseAmount(s) {
+
+  if (!s) return NaN;
+
+  const n = parseFloat(s.replace(/[\$,\+\s]/g, '').replace(/\((.+)\)/, '-$1'));
+
+  return isNaN(n) ? NaN : n;
+
+}
+
+
+
+function computeRiskScore(risk) {
+
+  const t = (risk || '').toLowerCase();
+
+  let s = 20;
+
+  if (/critical|fraud confirmed/.test(t)) s += 30;
+
+  if (/high risk|suspicious/.test(t)) s += 20;
+
+  if (/structuring|layering/.test(t)) s += 15;
+
+  if (/unusual|elevated/.test(t)) s += 10;
+
+  if (/medium/.test(t)) s += 10;
+
+  if (/low risk|nominal|legitimate/.test(t)) s -= 10;
+
+  return Math.min(100, Math.max(0, s));
+
+}
+
+
+
+function riskColor(score) {
+
+  if (score < 40) return '#10b981';
+
+  if (score < 70) return '#f59e0b';
+
+  return '#f43f5e';
+
+}
+
+
+
+function isFlagged(risk) {
+
+  return /suspicious|critical|high risk|fraud|structuring|unusual|flagged/.test((risk||'').toLowerCase());
+
+}
+
+
+
+function dnaScore(text, keywords) {
+
+  let s = 0;
+
+  keywords.forEach(([kw, pts]) => {
+
+    const re = new RegExp(kw, 'gi');
+
+    const m = (text || '').match(re);
+
+    if (m) s += m.length * pts;
+
+  });
+
+  return Math.min(100, s);
+
+}
+
+
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// RENDER &mdash; visual dashboard
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+function renderStmtDashboard(data) {
+
+  const raw = data.raw_analysis || '';
+
+  const risk = data.risk_summary || '';
+
+  const txns = parseTxnLines(raw);
+
+  const flagged = isFlagged(risk);
+
+  const riskScore = computeRiskScore(risk);
+
+  const txnCount = data.transaction_count || txns.length || 0;
+
+  const dashboard = document.getElementById('stmtDashboard');
+
+  dashboard.innerHTML = '';
+
+
+
+  const cards = [
+
+    buildVerdictCard(flagged, txnCount),
+
+    buildGaugeAndDnaRow(riskScore, risk),
+
+    buildChartsRow(txns, raw),
+
+    buildTableCard(txns),
+
+    buildAiCard(risk),
+
+  ];
+
+
+
+  cards.forEach((el, idx) => {
+
+    dashboard.appendChild(el);
+
+    setTimeout(() => el.querySelectorAll('.stmt-card').forEach(c => c.classList.add('visible')), idx * 60 + 80);
+
+  });
+
+
+
+  // Animate DNA bars after mount
+
+  setTimeout(() => animateDna(), 200);
+
+  // Animate gauge
+
+  setTimeout(() => animateGauge(riskScore), 150);
+
+}
+
+
+
+// Card 1 &mdash; Verdict
+
+function buildVerdictCard(flagged, count) {
+
+  const wrap = document.createElement('div');
+
+  const color = flagged ? '#f43f5e' : '#10b981';
+
+  const label = flagged ? 'STATEMENT FLAGGED' : 'STATEMENT CLEAR';
+
+  wrap.innerHTML = `
+
+    <div class="stmt-card" style="padding:10px 16px;">
+
+      <div class="stmt-verdict-strip" style="background:${flagged?'rgba(244,63,94,0.07)':'rgba(16,185,129,0.07)'};border-left-color:${color}">
+
+        <span class="stmt-verdict-text" style="color:${color}">${label}</span>
+
+        <span class="stmt-verdict-count">${count > 0 ? count : 'N/A'}</span>
+
+      </div>
+
+    </div>`;
+
+  return wrap;
+
+}
+
+
+
+// Cards 2+5 &mdash; Gauge + DNA in a row
+
+let _gaugeScore = 0;
+
+function buildGaugeAndDnaRow(score, risk) {
+
+  _gaugeScore = score;
+
+  const color = riskColor(score);
+
+
+
+  // DNA scores
+
+  const riskTxt = risk.toLowerCase();
+
+  const dnaData = [
+
+    { label: 'VELOCITY RISK',    score: dnaScore(riskTxt, [['rapid|frequent|velocity|multiple transfers', 20]]) },
+
+    { label: 'DESTINATION RISK', score: dnaScore(riskTxt, [['new account|unknown recipient|unverified', 25]]) },
+
+    { label: 'AMOUNT RISK',      score: dnaScore(riskTxt, [['large amount|structuring|threshold|\\$9,|\\$10,', 20]]) },
+
+    { label: 'PATTERN DEVIATION',score: dnaScore(riskTxt, [['unusual pattern|deviation|inconsistent|first time', 30]]) },
+
+    { label: 'MERCHANT RISK',    score: dnaScore(riskTxt, [['gift card|crypto|wire|casino|prize', 25]]) },
+
+  ];
+
+
+
+  const dnaRows = dnaData.map((d, i) => {
+
+    const dc = riskColor(d.score);
+
+    return `<div class="dna-row" style="animation-delay:${i*80}ms">
+
+      <span class="dna-label">${d.label}</span>
+
+      <div class="dna-track"><div class="dna-fill" id="dnaFill${i}" style="background:${dc}"></div></div>
+
+      <span class="dna-val" id="dnaVal${i}">${d.score}</span>
+
+    </div>`;
+
+  }).join('');
+
+
+
+  window._dnaScores = dnaData.map(d => d.score);
+
+
+
+  const wrap = document.createElement('div');
+
+  wrap.className = 'stmt-card-grid';
+
+  wrap.innerHTML = `
+
+    <div class="stmt-card">
+
+      <div class="stmt-card-label">RISK SCORE GAUGE</div>
+
+      <div class="gauge-wrap">
+
+        <svg class="gauge-svg" viewBox="0 0 130 75">
+
+          <path d="M10,70 A55,55,0,0,1,120,70" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="8" stroke-linecap="round"/>
+
+          <path id="gaugeArc" d="M10,70 A55,55,0,0,1,120,70" fill="none" stroke="${color}" stroke-width="8"
+
+                stroke-linecap="round" stroke-dasharray="173" stroke-dashoffset="173"/>
+
+        </svg>
+
+        <div class="gauge-score" id="gaugeScoreVal">0</div>
+
+        <div class="gauge-sub">RISK SCORE / 100</div>
+
+      </div>
+
+    </div>
+
+    <div class="stmt-card">
+
+      <div class="stmt-card-label">RISK FACTOR BREAKDOWN</div>
+
+      ${dnaRows}
+
+    </div>`;
+
+  return wrap;
+
+}
+
+
+
+function animateGauge(score) {
+
+  const arc = document.getElementById('gaugeArc');
+
+  const val = document.getElementById('gaugeScoreVal');
+
+  if (!arc || !val) return;
+
+  const total = 173;
+
+  const offset = total - (score / 100) * total;
+
+  arc.style.transition = 'stroke-dashoffset 800ms ease';
+
+  arc.setAttribute('stroke-dashoffset', offset);
+
+  arc.setAttribute('stroke', riskColor(score));
+
+  let cur = 0;
+
+  const step = () => { cur = Math.min(cur + 2, score); val.textContent = cur; if (cur < score) requestAnimationFrame(step); };
+
+  requestAnimationFrame(step);
+
+}
+
+
+
+function animateDna() {
+
+  const scores = window._dnaScores || [];
+
+  scores.forEach((s, i) => {
+
+    setTimeout(() => {
+
+      const fill = document.getElementById('dnaFill' + i);
+
+      if (fill) fill.style.width = s + '%';
+
+    }, i * 80);
+
+  });
+
+}
+
+
+
+// Cards 3+4 &mdash; Volume bar + Balance line
+
+function buildChartsRow(txns, raw) {
+
+  const wrap = document.createElement('div');
+
+  wrap.className = 'stmt-card-grid';
+
+
+
+  const amounts = txns.map(r => parseAmount(r[2])).filter(n => !isNaN(n));
+
+  const balances = txns.map(r => parseAmount(r[3])).filter(n => !isNaN(n));
+
+
+
+  // Bucket counts
+
+  const buckets = { '$0-100': 0, '$100-500': 0, '$500-1K': 0, '$1K-5K': 0, '$5K+': 0 };
+
+  amounts.forEach(a => {
+
+    const v = Math.abs(a);
+
+    if (v < 100) buckets['$0-100']++;
+
+    else if (v < 500) buckets['$100-500']++;
+
+    else if (v < 1000) buckets['$500-1K']++;
+
+    else if (v < 5000) buckets['$1K-5K']++;
+
+    else buckets['$5K+']++;
+
+  });
+
+
+
+  const balanceTrend = balances.length >= 2 && balances[balances.length-1] >= balances[0] ? '#10b981' : '#f43f5e';
+
+
+
+  wrap.innerHTML = `
+
+    <div class="stmt-card">
+
+      <div class="stmt-card-label">TRANSACTION VOLUME</div>
+
+      ${amounts.length === 0 ? '<div class="stmt-no-data">NO AMOUNTS PARSED</div>' :
+
+        '<canvas id="volChart" height="160"></canvas>'}
+
+    </div>
+
+    <div class="stmt-card">
+
+      <div class="stmt-card-label">RUNNING BALANCE</div>
+
+      ${balances.length < 3 ? '<div class="stmt-no-data">INSUFFICIENT DATA</div>' :
+
+        '<canvas id="balChart" height="160"></canvas>'}
+
+    </div>`;
+
+
+
+  // Charts rendered after DOM is attached &mdash; use rAF trick
+
+  requestAnimationFrame(() => {
+
+    const chartDefaults = {
+
+      plugins: { legend: { display: false }, tooltip: { callbacks: {} } },
+
+      scales: {
+
+        x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.3)', font: { family: 'JetBrains Mono', size: 9 } } },
+
+        y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.3)', font: { family: 'JetBrains Mono', size: 9 } } }
+
+      }
+
+    };
+
+
+
+    const volEl = document.getElementById('volChart');
+
+    if (volEl) {
+
+      const vc = new Chart(volEl, {
+
+        type: 'bar',
+
+        data: {
+
+          labels: Object.keys(buckets),
+
+          datasets: [{ data: Object.values(buckets), backgroundColor: 'rgba(99,102,241,0.7)', borderRadius: 3 }]
+
+        },
+
+        options: { ...chartDefaults, animation: { duration: 600 } }
+
+      });
+
+      _stmtCharts.push(vc);
+
+    }
+
+
+
+    const balEl = document.getElementById('balChart');
+
+    if (balEl && balances.length >= 3) {
+
+      const gradient = balEl.getContext('2d').createLinearGradient(0, 0, 0, 160);
+
+      gradient.addColorStop(0, balanceTrend === '#10b981' ? 'rgba(16,185,129,0.3)' : 'rgba(244,63,94,0.3)');
+
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+      const bc = new Chart(balEl, {
+
+        type: 'line',
+
+        data: {
+
+          labels: balances.map((_, i) => '#' + (i + 1)),
+
+          datasets: [{ data: balances, borderColor: balanceTrend, borderWidth: 1.5,
+
+            backgroundColor: gradient, fill: true, tension: 0.3, pointRadius: 2,
+
+            pointBackgroundColor: balanceTrend }]
+
+        },
+
+        options: { ...chartDefaults, animation: { duration: 700 } }
+
+      });
+
+      _stmtCharts.push(bc);
+
+    }
+
+  });
+
+
+
+  return wrap;
+
+}
+
+
+
+// Card 6 &mdash; Transactions table
+
+function buildTableCard(txns) {
+
+  const wrap = document.createElement('div');
+
+  let body = '';
+
+  if (txns.length === 0) {
+
+    body = '<div class="stmt-no-data">COULD NOT PARSE TRANSACTIONS &mdash; CHECK RAW OUTPUT</div>';
+
+  } else {
+
+    const rows = txns.map(r => {
+
+      const amtRaw = r[2] || '';
+
+      const amtNum = parseAmount(amtRaw);
+
+      const cls = !isNaN(amtNum) ? (amtNum < 0 ? 'amt-neg' : 'amt-pos') : '';
+
+      return `<tr><td>${r[0]||''}</td><td>${r[1]||''}</td><td class="${cls}">${amtRaw}</td><td>${r[3]||''}</td></tr>`;
+
+    }).join('');
+
+    body = `<div class="stmt-tbl-wrap">
+
+      <table class="stmt-table">
+
+        <thead><tr><th>DATE</th><th>DESCRIPTION</th><th>AMOUNT</th><th>BALANCE</th></tr></thead>
+
+        <tbody>${rows}</tbody>
+
+      </table></div>`;
+
+  }
+
+  wrap.innerHTML = `<div class="stmt-card"><div class="stmt-card-label">EXTRACTED TRANSACTIONS</div>${body}</div>`;
+
+  return wrap;
+
+}
+
+
+
+// Card 7 &mdash; AI summary (typewriter)
+function buildAiCard(risk) {
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `<div class="stmt-card">
+    <div class="stmt-ai-header">GROQ &middot; LLAMA-3.3 &middot; STATEMENT FORENSICS</div>
+    <div class="stmt-ai-body" id="stmtAiBody"></div>
+  </div>`;
+  // typewriter after DOM insert
+  requestAnimationFrame(() => {
+    const el = document.getElementById('stmtAiBody');
+    if (!el) return;
+    
+    const summary = (risk && risk.trim().length > 0) 
+        ? risk.trim() 
+        : '[RISK SUMMARY UNAVAILABLE \u2014 MODEL DID NOT RETURN ASSESSMENT]';
+        
+    if (summary === '[RISK SUMMARY UNAVAILABLE \u2014 MODEL DID NOT RETURN ASSESSMENT]') {
+        el.className = 'stmt-ai-body risk-summary-fallback';
+    } else {
+        el.className = 'stmt-ai-body';
+    }
+    
+    function typewriter(element, text, speed = 14) {
+        element.textContent = '';
+        let i = 0;
+        const cursor = '\u258C'; // blinking block cursor
+        const interval = setInterval(() => {
+            if (i < text.length) {
+                element.textContent = text.slice(0, i + 1) + cursor;
+                i++;
+            } else {
+                element.textContent = text; // final state, no cursor
+                clearInterval(interval);
+            }
+        }, speed);
+    }
+    
+    typewriter(el, summary);
+  });
+  return wrap;
+}
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// EXPORT ANALYSIS â†’ styled PDF via backend
+
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+async function exportStmtPdf() {
+
+  if (!stmtData) return;
+
+  const btn = document.getElementById('exportStmtBtn');
+
+  btn.textContent = 'GENERATING PDF...'; btn.disabled = true;
+
+  try {
+
+    const payload = {
+
+      file_name: stmtData._fileName || 'statement',
+
+      file_type: stmtData.file_type || 'pdf',
+
+      transaction_count: stmtData.transaction_count || null,
+
+      raw_analysis: stmtData.raw_analysis || '',
+
+      risk_summary: stmtData.risk_summary || '',
+
+      timestamp: stmtData._timestamp || new Date().toISOString(),
+
+    };
+
+    const res = await fetch('/export-statement-report', {
+
+      method: 'POST',
+
+      headers: { 'Content-Type': 'application/json' },
+
+      body: JSON.stringify(payload),
+
+    });
+
+    if (!res.ok) throw new Error('PDF generation failed: ' + res.status);
+
+    const blob = await res.blob();
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+
+    a.href = url;
+
+    a.download = 'FRAUDGUARD_STATEMENT_' + (stmtData._fileName || 'report').replace(/\s/g, '_') + '.pdf';
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+  } catch (e) {
+
+    alert('Export failed: ' + e.message);
+
+  } finally {
+
+    btn.textContent = 'EXPORT ANALYSIS'; btn.disabled = false;
+
+  }
+
+}
+
+</script>
+
+</body>
+
+</html>
+
