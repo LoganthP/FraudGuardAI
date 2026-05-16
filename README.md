@@ -66,6 +66,10 @@ Ensure you have Python 3.9+ installed. Set up your virtual environment, then run
 ```bash
 pip install -r requirements.txt
 ```
+*(Alternatively, you can install the packages directly)*:
+```bash
+pip install fastapi uvicorn pydantic joblib pandas numpy scikit-learn xgboost langchain-groq python-dotenv fpdf2 pypdf
+```
 
 ### 2. Configure Environment Variables
 Copy the example environment file and add your Groq API key:
