@@ -386,13 +386,3 @@ python preprocessing/split_by_step.py
 # Train
 python train.py
 ```
-
----
-
-<div align="center">
-
-`FRAUDGUARD AI` · `CONFIDENTIAL` · `POWERED BY XGBOOST + GROQ LLAMA-3.3`
-
-*Built with precision. Designed for intelligence.*
-
-</div>
